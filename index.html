@@ -3,62 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人八字紀錄工具</title>
+    <title>專業八字紀錄工具 (自動排盤版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen py-10 px-4">
+<body class="bg-slate-100 min-h-screen py-8 px-4 font-sans">
 
-    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold text-slate-800">八字命例紀錄</h1>
-            <p class="text-slate-500 mt-2 text-sm">手動輸入確保最準確，一鍵導出文字紀錄</p>
+    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 md:p-8">
+        <header class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">八字自動排盤紀錄</h1>
+            <p class="text-slate-500 text-xs mt-1">自動計算為主，人工校對為輔</p>
         </header>
         
-        <div class="space-y-6">
+        <div class="space-y-5">
             <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2 md:col-span-1">
+                <div class="col-span-2">
                     <label class="block text-sm font-semibold text-slate-700">姓名</label>
-                    <input type="text" id="name" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    <input type="text" id="name" oninput="saveData()" class="w-full mt-1 border-gray-200 border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="col-span-2 md:col-span-1">
-                    <label class="block text-sm font-semibold text-slate-700">出生地點</label>
-                    <input type="text" id="location" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    <label class="block text-sm font-semibold text-slate-700">西元生日 (陽曆)</label>
+                    <input type="date" id="date" onchange="autoCalculateBazi()" class="w-full mt-1 border-gray-200 border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="col-span-2 md:col-span-1">
-                    <label class="block text-sm font-semibold text-slate-700">西元生日</label>
-                    <input type="date" id="date" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
-                </div>
-                <div class="col-span-2 md:col-span-1">
-                    <label class="block text-sm font-semibold text-slate-700">具體時間</label>
-                    <input type="time" id="time" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                    <label class="block text-sm font-semibold text-slate-700">時間</label>
+                    <input type="time" id="time" onchange="autoCalculateBazi()" class="w-full mt-1 border-gray-200 border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
 
-            <hr class="border-slate-100">
-
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-3 text-center">八字 (手動校對版)</label>
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <label class="block text-sm font-bold text-blue-800 mb-3 text-center">自動生成之八字 (點擊可手動校正)</label>
                 <div class="grid grid-cols-4 gap-2">
-                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">時柱</span><input type="text" id="hourPillar" placeholder="丁未" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
-                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">日柱</span><input type="text" id="dayPillar" placeholder="辛亥" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm border-indigo-200"></div>
-                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">月柱</span><input type="text" id="monthPillar" placeholder="丙午" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
-                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">年柱</span><input type="text" id="yearPillar" placeholder="甲辰" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
+                    <div class="text-center">
+                        <span class="text-[10px] font-bold text-blue-400 block">時柱</span>
+                        <input type="text" id="hourPillar" oninput="saveData()" class="w-full border-0 rounded bg-white p-2 text-center font-bold text-slate-700 shadow-sm">
+                    </div>
+                    <div class="text-center">
+                        <span class="text-[10px] font-bold text-blue-400 block">日柱</span>
+                        <input type="text" id="dayPillar" oninput="saveData()" class="w-full border-0 rounded bg-white p-2 text-center font-bold text-slate-700 shadow-sm ring-1 ring-blue-200">
+                    </div>
+                    <div class="text-center">
+                        <span class="text-[10px] font-bold text-blue-400 block">月柱</span>
+                        <input type="text" id="monthPillar" oninput="saveData()" class="w-full border-0 rounded bg-white p-2 text-center font-bold text-slate-700 shadow-sm">
+                    </div>
+                    <div class="text-center">
+                        <span class="text-[10px] font-bold text-blue-400 block">年柱</span>
+                        <input type="text" id="yearPillar" oninput="saveData()" class="w-full border-0 rounded bg-white p-2 text-center font-bold text-slate-700 shadow-sm">
+                    </div>
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700">筆記 / 喜用神 / 大運備註</label>
-                <textarea id="notes" rows="4" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="例如：大運辛未轉壬申..."></textarea>
+                <label class="block text-sm font-semibold text-slate-700">備註 (喜用神/格局)</label>
+                <textarea id="notes" rows="3" oninput="saveData()" class="w-full mt-1 border-gray-200 border rounded-lg p-2 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如：月令建祿，喜金水..."></textarea>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button onclick="generateText()" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 active:scale-95 transition shadow-lg shadow-indigo-200">生成紀錄內容</button>
-                <button onclick="copyToClipboard()" id="copyBtn" class="hidden w-full py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-200">複製文字內容</button>
-                <button onclick="downloadFile()" id="dlBtn" class="hidden col-span-1 md:col-span-2 w-full py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">💾 儲存為 .txt 檔案</button>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="generateText()" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-black transition shadow-lg">生成紀錄</button>
+                <button onclick="copyToClipboard()" id="copyBtn" class="hidden w-full py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition shadow-lg">複製文字</button>
+                <button onclick="clearAll()" class="col-span-2 text-xs text-slate-400 hover:text-red-500 transition">清空所有資料</button>
             </div>
 
-            <div id="previewArea" class="hidden mt-4 animate-fade-in">
-                <div class="bg-slate-800 rounded-lg p-4 text-slate-100 text-sm font-mono overflow-auto shadow-inner border-t-4 border-indigo-500">
+            <div id="previewArea" class="hidden mt-4">
+                <div class="bg-slate-900 rounded-lg p-4 text-emerald-400 text-sm font-mono overflow-auto border-l-4 border-emerald-500">
                     <pre id="outputContent"></pre>
                 </div>
             </div>
@@ -66,49 +73,89 @@
     </div>
 
     <script>
-        function getValues() {
-            return {
-                name: document.getElementById('name').value || '未知姓名',
-                loc: document.getElementById('location').value || '未紀錄地點',
-                date: document.getElementById('date').value || '----/--/--',
-                time: document.getElementById('time').value || '--:--',
-                yP: document.getElementById('yearPillar').value || '□□',
-                mP: document.getElementById('monthPillar').value || '□□',
-                dP: document.getElementById('dayPillar').value || '□□',
-                hP: document.getElementById('hourPillar').value || '□□',
-                notes: document.getElementById('notes').value || '無備註'
-            };
+        // 1. 自動排盤邏輯
+        function autoCalculateBazi() {
+            const dateVal = document.getElementById('date').value;
+            const timeVal = document.getElementById('time').value || "00:00";
+            
+            if (!dateVal) return;
+
+            const [y, m, d] = dateVal.split('-').map(Number);
+            const [hh, mm] = timeVal.split(':').map(Number);
+
+            // 使用 Lunar 庫進行轉換
+            const solar = Solar.fromYmdHms(y, m, d, hh, mm, 0);
+            const lunar = solar.getLunar();
+            const eightChar = lunar.getEightChar();
+
+            // 填入欄位
+            document.getElementById('yearPillar').value = eightChar.getYear();
+            document.getElementById('monthPillar').value = eightChar.getMonth();
+            document.getElementById('dayPillar').value = eightChar.getDay();
+            document.getElementById('hourPillar').value = eightChar.getTime();
+            
+            saveData(); // 存檔
         }
 
-        function buildText() {
-            const v = getValues();
-            return `【命例紀錄庫】\n姓名：${v.name}\n地點：${v.loc}\n時間：${v.date} ${v.time}\n\n[ 八字盤面 ]\n時 日 月 年\n${v.hP} ${v.dP} ${v.mP} ${v.yP}\n\n[ 備註 ]\n${v.notes}\n\n紀錄日期：${new Date().toLocaleString()}\n--------------------`;
+        // 2. 自動暫存功能 (LocalStorage)
+        const fields = ['name', 'date', 'time', 'yearPillar', 'monthPillar', 'dayPillar', 'hourPillar', 'notes'];
+
+        function saveData() {
+            const data = {};
+            fields.forEach(f => data[f] = document.getElementById(f).value);
+            localStorage.setItem('bazi_app_data', JSON.stringify(data));
         }
 
+        function loadData() {
+            const saved = localStorage.getItem('bazi_app_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                fields.forEach(f => {
+                    if(data[f]) document.getElementById(f).value = data[f];
+                });
+            }
+        }
+
+        // 3. 生成與複製
         function generateText() {
-            document.getElementById('outputContent').textContent = buildText();
+            const data = {};
+            fields.forEach(f => data[f] = document.getElementById(f).value || '□');
+            
+            const content = `【命例紀錄】
+姓名：${data.name}
+陽曆：${data.date} ${data.time}
+--------------------
+時  日  月  年
+${data.hourPillar}  ${data.dayPillar}  ${data.monthPillar}  ${data.yearPillar}
+--------------------
+備註：
+${data.notes}
+--------------------
+紀錄時間：${new Date().toLocaleString()}`;
+
+            document.getElementById('outputContent').textContent = content;
             document.getElementById('previewArea').classList.remove('hidden');
             document.getElementById('copyBtn').classList.remove('hidden');
-            document.getElementById('dlBtn').classList.remove('hidden');
         }
 
         function copyToClipboard() {
-            navigator.clipboard.writeText(buildText()).then(() => {
+            const text = document.getElementById('outputContent').textContent;
+            navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copyBtn');
-                const oldText = btn.textContent;
-                btn.textContent = '✅ 已複製！';
-                setTimeout(() => btn.textContent = oldText, 2000);
+                btn.innerText = '✅ 已複製';
+                setTimeout(() => btn.innerText = '複製文字', 2000);
             });
         }
 
-        function downloadFile() {
-            const blob = new Blob([buildText()], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${getValues().name}_八字紀錄.txt`;
-            a.click();
+        function clearAll() {
+            if(confirm('確定要清空所有內容嗎？')) {
+                localStorage.removeItem('bazi_app_data');
+                location.reload();
+            }
         }
+
+        // 初始化
+        window.onload = loadData;
     </script>
 </body>
 </html>
