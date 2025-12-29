@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>八字紀錄-穩定版</title>
+    <title>八字紀錄工具-終極修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.6.12/lunar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen py-6 px-4 font-sans text-slate-900">
 
     <div class="max-w-xl mx-auto space-y-6">
         <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-200">
-            <header class="text-center mb-6">
+            <header class="text-center mb-6 border-b pb-4">
                 <h1 class="text-2xl font-black text-indigo-600">八字命例收藏</h1>
-                <div id="status" class="text-[10px] text-amber-500 mt-1 font-bold">● 系統準備中...</div>
+                <div id="status" class="text-[10px] text-amber-500 mt-1 font-bold">● 系統載入中，請稍候...</div>
             </header>
             
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="col-span-1">
                         <label class="text-xs font-bold text-slate-500">姓名</label>
-                        <input type="text" id="name" placeholder="姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="name" placeholder="輸入姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="col-span-1">
                         <label class="text-xs font-bold text-slate-500">性別</label>
@@ -30,148 +30,147 @@
                         </select>
                     </div>
                     <div class="col-span-2">
-                        <label class="text-xs font-bold text-slate-500">出生日期與時間 (陽曆)</label>
+                        <label class="text-xs font-bold text-slate-500">出生時間 (陽曆)</label>
                         <div class="flex gap-2">
-                            <input type="date" id="date" class="flex-2 w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500">
-                            <input type="time" id="time" value="12:00" class="flex-1 w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="date" id="date" class="flex-2 w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none">
+                            <input type="time" id="time" value="12:00" class="flex-1 w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none">
                         </div>
                     </div>
                 </div>
 
-                <button onclick="runBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition">
+                <button id="mainBtn" onclick="runBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:bg-indigo-700 active:scale-95 transition">
                     立即排盤並預覽
                 </button>
 
                 <div class="bg-slate-900 rounded-2xl p-4 shadow-inner">
-                    <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="grid grid-cols-4 gap-2 text-center text-white">
                         <div class="space-y-1">
                             <span id="hS" class="text-[11px] font-bold text-amber-400 block h-4">--</span>
-                            <div id="hP" class="bg-slate-800 text-white py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
-                            <span class="text-[10px] text-slate-500 block font-bold">時柱</span>
+                            <div id="hP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
+                            <span class="text-[10px] text-slate-500 block">時柱</span>
                         </div>
                         <div class="space-y-1">
                             <span class="text-[11px] font-bold text-rose-400 block h-4">日主</span>
-                            <div id="dP" class="bg-slate-800 text-white py-3 rounded-lg font-bold text-lg border-2 border-rose-500/50">--</div>
-                            <span class="text-[10px] text-slate-500 block font-bold">日柱</span>
+                            <div id="dP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border-2 border-rose-500/50">--</div>
+                            <span class="text-[10px] text-slate-500 block">日柱</span>
                         </div>
                         <div class="space-y-1">
                             <span id="mS" class="text-[11px] font-bold text-amber-400 block h-4">--</span>
-                            <div id="mP" class="bg-slate-800 text-white py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
-                            <span class="text-[10px] text-slate-500 block font-bold">月柱</span>
+                            <div id="mP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
+                            <span class="text-[10px] text-slate-500 block">月柱</span>
                         </div>
                         <div class="space-y-1">
                             <span id="yS" class="text-[11px] font-bold text-amber-400 block h-4">--</span>
-                            <div id="yP" class="bg-slate-800 text-white py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
-                            <span class="text-[10px] text-slate-500 block font-bold">年柱</span>
+                            <div id="yP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div>
+                            <span class="text-[10px] text-slate-500 block">年柱</span>
                         </div>
                     </div>
                 </div>
 
-                <button onclick="saveRecord()" class="w-full py-3 bg-slate-100 text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-200 transition">
-                    💾 儲存到下方收藏清單
+                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-50 text-emerald-600 font-bold rounded-xl border border-emerald-200 hover:bg-emerald-600 hover:text-white transition">
+                    💾 儲存到收藏清單
                 </button>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <h2 class="font-black text-slate-700 px-2 flex items-center justify-between">
-                <span>已收藏命例</span>
-                <span id="countText" class="text-xs bg-slate-200 px-2 py-1 rounded-full">0</span>
-            </h2>
-            <div id="historyList" class="space-y-3 pb-10"></div>
-        </div>
+        <div id="historyList" class="space-y-3 pb-10"></div>
     </div>
 
     <script>
-        // 確保 Lunar 載入
-        window.onload = () => {
+        // 核心計算庫檢查與初始化
+        function checkInit() {
             if (typeof Solar !== 'undefined') {
                 document.getElementById('status').innerText = "● 系統就緒";
                 document.getElementById('status').classList.replace('text-amber-500', 'text-emerald-500');
+                document.getElementById('mainBtn').innerText = "立即排盤並預覽";
+                return true;
             }
-            renderHistory();
-        };
+            return false;
+        }
+
+        // 每秒檢查一次是否載入成功
+        const timer = setInterval(() => {
+            if(checkInit()) clearInterval(timer);
+        }, 1000);
 
         const SHI_SHEN_MAP = {
-            '比肩': ['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'],
-            '劫財': ['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'],
-            '食神': ['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'],
-            '傷官': ['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'],
-            '偏財': ['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'],
-            '正財': ['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'],
-            '七殺': ['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'],
-            '正官': ['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸戊'],
-            '偏印': ['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'],
-            '正印': ['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚']
+            '比肩':['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'],
+            '劫財':['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'],
+            '食神':['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'],
+            '傷官':['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'],
+            '偏財':['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'],
+            '正財':['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'],
+            '七殺':['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'],
+            '正官':['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸戊'],
+            '偏印':['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'],
+            '正印':['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚']
         };
 
         function getSS(dG, tG) {
             const pair = dG + tG;
-            for (let key in SHI_SHEN_MAP) {
-                if (SHI_SHEN_MAP[key].includes(pair)) return key;
-            }
+            for (let key in SHI_SHEN_MAP) if (SHI_SHEN_MAP[key].includes(pair)) return key;
             return "--";
         }
 
-        let currentData = null;
+        let cur = null;
 
         function runBazi() {
-            const dVal = document.getElementById('date').value;
-            const tVal = document.getElementById('time').value;
-            if (!dVal) return alert("請選擇日期");
+            if (!checkInit()) return alert("系統還在下載排盤模組，請稍等幾秒並確保網路通暢。");
+            const dV = document.getElementById('date').value;
+            if (!dV) return alert("請選生日");
+            
+            const [y, m, d] = dV.split('-').map(Number);
+            const [hh, mm] = document.getElementById('time').value.split(':').map(Number);
             
             try {
-                const [y, m, d] = dVal.split('-').map(Number);
-                const [hh, mm] = tVal.split(':').map(Number);
                 const s = Solar.fromYmdHms(y, m, d, hh, mm, 0);
                 const l = s.getLunar();
                 const b = l.getEightChar();
-
                 const dG = b.getDayGan();
-                
-                // 顯示盤面
+
                 document.getElementById('yP').innerText = b.getYear();
                 document.getElementById('mP').innerText = b.getMonth();
                 document.getElementById('dP').innerText = b.getDay();
                 document.getElementById('hP').innerText = b.getTime();
 
-                // 顯示主星
                 document.getElementById('yS').innerText = getSS(dG, b.getYearGan());
                 document.getElementById('mS').innerText = getSS(dG, b.getMonthGan());
                 document.getElementById('hS').innerText = getSS(dG, b.getTimeGan());
 
-                currentData = {
-                    yP: b.getYear(), mP: b.getMonth(), dP: b.getDay(), hP: b.getTime(),
-                    yS: getSS(dG, b.getYearGan()), mS: getSS(dG, b.getMonthGan()), hS: getSS(dG, b.getTimeGan())
+                cur = {
+                    p: `${b.getTime()} ${b.getDay()} ${b.getMonth()} ${b.getYear()}`,
+                    s: `${getSS(dG, b.getTimeGan())} | 日主 | ${getSS(dG, b.getMonthGan())} | ${getSS(dG, b.getYearGan())}`
                 };
-            } catch (e) {
-                alert("排盤失敗，請重新整理頁面再試");
-            }
+            } catch (e) { alert("計算出錯"); }
         }
 
         function saveRecord() {
-            if (!currentData) return alert("請先點擊【立即排盤】");
+            if (!cur) return alert("請先排盤");
             const name = document.getElementById('name').value || "未名";
-            const gender = document.getElementById('gender').value;
-            
-            const recordText = `【命例紀錄】\n姓名：${name} (${gender})\n八字：${currentData.hP} ${currentData.dP} ${currentData.mP} ${currentData.yP}\n主星：${currentData.hS} | 日主 | ${currentData.mS} | ${currentData.yS}\n--------------------\n紀錄時間：${new Date().toLocaleString()}`;
-
-            const history = JSON.parse(localStorage.getItem('bazi_v6') || '[]');
-            history.unshift({ id: Date.now(), text: recordText, name });
-            localStorage.setItem('bazi_v6', JSON.stringify(history));
-            renderHistory();
-            alert("已加入收藏");
+            const gen = document.getElementById('gender').value;
+            const text = `【命例】${name} (${gen})\n八字：${cur.p}\n主星：${cur.s}\n日期：${document.getElementById('date').value}\n--------------------`;
+            const h = JSON.parse(localStorage.getItem('bazi_v7') || '[]');
+            h.unshift({ id: Date.now(), text, name });
+            localStorage.setItem('bazi_v7', JSON.stringify(h));
+            render();
         }
 
-        function renderHistory() {
-            const list = document.getElementById('historyList');
-            const history = JSON.parse(localStorage.getItem('bazi_v6') || '[]');
-            document.getElementById('countText').innerText = history.length;
-
-            list.innerHTML = history.map(item => `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-black text-slate-800">${item.name}</span>
-                        <button onclick="deleteItem(${item.id})" class="text-[10px] text-slate-300 hover:text-red-500">刪除</button>
-                    </div>
-                    <pre class="text-[11px] font-mono bg-slate-50 p-3 rounded-xl
+        function render() {
+            const h = JSON.parse(localStorage.getItem('bazi_v7') || '[]');
+            document.getElementById('historyList').innerHTML = h.map(i => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border mb-3">
+                    <div class="flex justify-between text-xs font-bold mb-2"><span>${i.name}</span><button onclick="del(${i.id})" class="text-red-300">刪除</button></div>
+                    <pre class="text-[11px] font-mono bg-slate-50 p-2 rounded">${i.text}</pre>
+                    <button onclick="navigator.clipboard.writeText(\`${i.text}\`);alert('已複製')" class="w-full mt-2 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold">複製文字</button>
+                </div>
+            `).join('');
+        }
+        function del(id) {
+            let h = JSON.parse(localStorage.getItem('bazi_v7') || '[]');
+            localStorage.setItem('bazi_v7', JSON.stringify(h.filter(i => i.id !== id)));
+            render();
+        }
+        window.onload = render;
+    </script>
+</body>
+</html>
