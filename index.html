@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人八字紀錄工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen py-10 px-4">
+
+    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-slate-800">八字命例紀錄</h1>
+            <p class="text-slate-500 mt-2 text-sm">手動輸入確保最準確，一鍵導出文字紀錄</p>
+        </header>
+        
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold text-slate-700">姓名</label>
+                    <input type="text" id="name" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold text-slate-700">出生地點</label>
+                    <input type="text" id="location" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold text-slate-700">西元生日</label>
+                    <input type="date" id="date" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold text-slate-700">具體時間</label>
+                    <input type="time" id="time" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                </div>
+            </div>
+
+            <hr class="border-slate-100">
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-3 text-center">八字 (手動校對版)</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">時柱</span><input type="text" id="hourPillar" placeholder="丁未" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
+                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">日柱</span><input type="text" id="dayPillar" placeholder="辛亥" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm border-indigo-200"></div>
+                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">月柱</span><input type="text" id="monthPillar" placeholder="丙午" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
+                    <div class="text-center"><span class="text-xs font-bold text-slate-400 block mb-1">年柱</span><input type="text" id="yearPillar" placeholder="甲辰" class="w-full border p-2 rounded-lg text-center bg-white shadow-sm"></div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700">筆記 / 喜用神 / 大運備註</label>
+                <textarea id="notes" rows="4" class="w-full mt-1 border-gray-200 border rounded-lg p-2.5 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="例如：大運辛未轉壬申..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button onclick="generateText()" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 active:scale-95 transition shadow-lg shadow-indigo-200">生成紀錄內容</button>
+                <button onclick="copyToClipboard()" id="copyBtn" class="hidden w-full py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 active:scale-95 transition shadow-lg shadow-emerald-200">複製文字內容</button>
+                <button onclick="downloadFile()" id="dlBtn" class="hidden col-span-1 md:col-span-2 w-full py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">💾 儲存為 .txt 檔案</button>
+            </div>
+
+            <div id="previewArea" class="hidden mt-4 animate-fade-in">
+                <div class="bg-slate-800 rounded-lg p-4 text-slate-100 text-sm font-mono overflow-auto shadow-inner border-t-4 border-indigo-500">
+                    <pre id="outputContent"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getValues() {
+            return {
+                name: document.getElementById('name').value || '未知姓名',
+                loc: document.getElementById('location').value || '未紀錄地點',
+                date: document.getElementById('date').value || '----/--/--',
+                time: document.getElementById('time').value || '--:--',
+                yP: document.getElementById('yearPillar').value || '□□',
+                mP: document.getElementById('monthPillar').value || '□□',
+                dP: document.getElementById('dayPillar').value || '□□',
+                hP: document.getElementById('hourPillar').value || '□□',
+                notes: document.getElementById('notes').value || '無備註'
+            };
+        }
+
+        function buildText() {
+            const v = getValues();
+            return `【命例紀錄庫】\n姓名：${v.name}\n地點：${v.loc}\n時間：${v.date} ${v.time}\n\n[ 八字盤面 ]\n時 日 月 年\n${v.hP} ${v.dP} ${v.mP} ${v.yP}\n\n[ 備註 ]\n${v.notes}\n\n紀錄日期：${new Date().toLocaleString()}\n--------------------`;
+        }
+
+        function generateText() {
+            document.getElementById('outputContent').textContent = buildText();
+            document.getElementById('previewArea').classList.remove('hidden');
+            document.getElementById('copyBtn').classList.remove('hidden');
+            document.getElementById('dlBtn').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(buildText()).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const oldText = btn.textContent;
+                btn.textContent = '✅ 已複製！';
+                setTimeout(() => btn.textContent = oldText, 2000);
+            });
+        }
+
+        function downloadFile() {
+            const blob = new Blob([buildText()], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${getValues().name}_八字紀錄.txt`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
