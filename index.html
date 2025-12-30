@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業八字紀錄-穩定加強版</title>
+    <title>專業八字-終極獨立版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/lunar-javascript/lunar.js"></script>
-    <script>
-        // 如果第一個來源失敗，自動嘗試第二個
-        if (typeof Solar === 'undefined') {
-            document.write('<script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"><\/script>');
-        }
-    </script>
-    
+    <script src="https://679796.github.io/Bazi-App/lunar.js"></script>
     <style>
         .bg-wood { background-color: #f0fdf4; border-color: #bbf7d0; } 
         .bg-fire { background-color: #fef2f2; border-color: #fecaca; } 
@@ -28,33 +20,49 @@
         <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-200">
             <header class="text-center mb-6 border-b pb-4">
                 <h1 class="text-2xl font-black text-indigo-600">八字命例收藏</h1>
-                <div id="status" class="flex items-center justify-center gap-2 text-[10px] text-amber-500 mt-1 font-bold">
-                    <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="statusText">系統初始化中...</span>
+                <div id="status" class="flex items-center justify-center gap-2 text-[10px] text-emerald-500 mt-1 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>終極本地版：已就緒</span>
                 </div>
             </header>
             
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">姓名</label><input type="text" id="name" placeholder="輸入姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500"></div>
-                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">性別</label><select id="gender" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none"><option value="乾造">男 (乾)</option><option value="坤造">女 (坤)</option></select></div>
+                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">姓名</label><input type="text" id="name" placeholder="姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none"></div>
+                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">性別</label><select id="gender" class="w-full mt-1 border rounded-xl p-3 bg-slate-50"><option value="乾造">男 (乾)</option><option value="坤造">女 (坤)</option></select></div>
                     <div class="col-span-2"><label class="text-xs font-bold text-slate-500">出生時間 (陽曆)</label><div class="flex gap-2"><input type="date" id="date" class="w-full border rounded-xl p-3 bg-slate-50"><input type="time" id="time" value="12:00" class="w-full border rounded-xl p-3 bg-slate-50"></div></div>
                 </div>
 
-                <button id="mainBtn" onclick="runBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:bg-indigo-700 active:scale-95 transition">立即排盤與分析能量</button>
+                <button onclick="runBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:shadow-none transition-all">立即排盤與能量分析</button>
 
-                <div class="bg-slate-900 rounded-2xl p-4 shadow-inner">
+                <div class="bg-slate-900 rounded-2xl p-4">
                     <div class="grid grid-cols-4 gap-2 text-center text-white">
-                        <div class="space-y-1"><span id="hS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="hP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div><span class="text-[10px] text-slate-500 block">時柱</span></div>
-                        <div class="space-y-1"><span class="text-[11px] font-bold text-rose-400 block h-4">日主</span><div id="dP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border-2 border-rose-500/50">--</div><span class="text-[10px] text-slate-500 block">日柱</span></div>
-                        <div class="space-y-1"><span id="mS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="mP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div><span class="text-[10px] text-slate-500 block">月柱</span></div>
-                        <div class="space-y-1"><span id="yS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="yP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border border-slate-700">--</div><span class="text-[10px] text-slate-500 block">年柱</span></div>
+                        <div class="space-y-1"><span id="hS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="hP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg">--</div><span class="text-[10px] text-slate-500">時柱</span></div>
+                        <div class="space-y-1"><span class="text-[11px] font-bold text-rose-400 block h-4">日主</span><div id="dP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border-2 border-rose-500/50">--</div><span class="text-[10px] text-slate-500">日柱</span></div>
+                        <div class="space-y-1"><span id="mS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="mP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg">--</div><span class="text-[10px] text-slate-500">月柱</span></div>
+                        <div class="space-y-1"><span id="yS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="yP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg">--</div><span class="text-[10px] text-slate-500">年柱</span></div>
                     </div>
                 </div>
 
                 <div id="elementArea" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="text-xs font-bold text-slate-500 mb-3 text-center">五行能量分析</h3>
                     <div id="elementBars" class="space-y-2"></div>
                 </div>
 
-                <button onclick="saveRecord()" class="w-full py-3 bg
+                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg">💾 儲存完整紀錄</button>
+            </div>
+        </div>
+        <div id="historyList" class="space-y-3 pb-10"></div>
+    </div>
+
+    <script>
+        // 十神與五行對照 (內建確保不失效)
+        const ELEMENTS_MAP = { '木': 'bg-emerald-500', '火': 'bg-rose-500', '土': 'bg-amber-600', '金': 'bg-slate-400', '水': 'bg-blue-500' };
+        const CHARS_MAP = { '甲':'木','乙':'木','寅':'木','卯':'木','丙':'火','丁':'火','巳':'火','午':'火','戊':'土','己':'土','辰':'土','戌':'土','丑':'土','未':'土','庚':'金','辛':'金','申':'金','酉':'金','壬':'水','癸':'水','亥':'水','子':'水' };
+        const SHI_SHEN = { '比肩':['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'], '劫財':['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'], '食神':['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'], '傷官':['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'], '偏財':['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'], '正財':['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'], '七殺':['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'], '正官':['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸戊'], '偏印':['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'], '正印':['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚'] };
+
+        let cur = null;
+
+        function runBazi() {
+            try {
+                const dV = document.getElementById('date').value;
+                if (!dV
