@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業八字紀錄-能量分析版</title>
+    <title>專業八字紀錄-全功能版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
-        .bg-wood { background-color: #f0fdf4; border-color: #bbf7d0; } /* 綠 */
-        .bg-fire { background-color: #fef2f2; border-color: #fecaca; } /* 紅 */
-        .bg-earth { background-color: #fffbeb; border-color: #fef3c7; } /* 黃 */
-        .bg-metal { background-color: #f8fafc; border-color: #e2e8f0; } /* 白/灰 */
-        .bg-water { background-color: #eff6ff; border-color: #bfdbfe; } /* 藍 */
+        .bg-wood { background-color: #f0fdf4; border-color: #bbf7d0; } 
+        .bg-fire { background-color: #fef2f2; border-color: #fecaca; } 
+        .bg-earth { background-color: #fffbeb; border-color: #fef3c7; } 
+        .bg-metal { background-color: #f8fafc; border-color: #e2e8f0; } 
+        .bg-water { background-color: #eff6ff; border-color: #bfdbfe; } 
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen py-6 px-4 font-sans text-slate-900">
@@ -42,11 +42,11 @@
                 </div>
 
                 <div id="elementArea" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="text-xs font-bold text-slate-500 mb-3">五行能量佔比 (含藏干)</h3>
+                    <h3 class="text-xs font-bold text-slate-500 mb-3">五行能量佔比 (天干地支)</h3>
                     <div id="elementBars" class="space-y-2"></div>
                 </div>
 
-                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition">💾 儲存到收藏清單</button>
+                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition">💾 儲存完整紀錄</button>
             </div>
         </div>
         <div id="historyList" class="space-y-3 pb-10"></div>
@@ -78,7 +78,7 @@
         function runBazi() {
             if (!checkInit()) return alert("系統載入中...");
             const dV = document.getElementById('date').value;
-            if (!dV) return alert("請選日期");
+            if (!dV) return alert("請選生日");
             const [y, m, d] = dV.split('-').map(Number);
             const [hh, mm] = document.getElementById('time').value.split(':').map(Number);
             
@@ -94,15 +94,17 @@
             document.getElementById('hS').innerText = getSS(dG, b.getTimeGan());
 
             // 五行分析
-            const allGansZhis = (b.getYear()+b.getMonth()+b.getDay()+b.getTime()).split('');
+            const allChars = (b.getYear()+b.getMonth()+b.getDay()+b.getTime()).split('');
             let counts = { '木':0, '火':0, '土':0, '金':0, '水':0 };
-            allGansZhis.forEach(char => { if(FIVE_ELEMENTS[char]) counts[FIVE_ELEMENTS[char]]++; });
+            allChars.forEach(char => { if(FIVE_ELEMENTS[char]) counts[FIVE_ELEMENTS[char]]++; });
             
             const total = Object.values(counts).reduce((a, b) => a + b, 0);
             let barHtml = '';
+            let energyText = '';
             for(let key in counts) {
                 const percent = Math.round((counts[key]/total)*100);
                 barHtml += `<div class="flex items-center gap-2"><span class="text-[10px] w-4 font-bold">${key}</span><div class="flex-1 bg-white rounded-full h-2 overflow-hidden border"><div class="${ELEMENTS[key]} h-full" style="width:${percent}%"></div></div><span class="text-[10px] w-8 text-right">${percent}%</span></div>`;
+                energyText += `${key}${percent}% `;
             }
             document.getElementById('elementBars').innerHTML = barHtml;
             document.getElementById('elementArea').classList.remove('hidden');
@@ -110,34 +112,34 @@
             cur = { 
                 p: `${b.getTime()} ${b.getDay()} ${b.getMonth()} ${b.getYear()}`,
                 s: `${getSS(dG, b.getTimeGan())} | 日主 | ${getSS(dG, b.getMonthGan())} | ${getSS(dG, b.getYearGan())}`,
+                e: energyText.trim(),
                 dm: FIVE_ELEMENTS[dG]
             };
         }
 
         function saveRecord() {
-            if (!cur) return alert("請先排盤");
+            if (!cur) return alert("請先點擊排盤按鈕");
             const name = document.getElementById('name').value || "未名";
             const gen = document.getElementById('gender').value;
             const styleClass = { '木':'bg-wood', '火':'bg-fire', '土':'bg-earth', '金':'bg-metal', '水':'bg-water' }[cur.dm];
-            const text = `【命例】${name} (${gen})\n八字：${cur.p}\n主星：${cur.s}\n--------------------`;
-            const h = JSON.parse(localStorage.getItem('bazi_v8') || '[]');
+            
+            // 組合完整紀錄文字
+            const text = `【命例紀錄】\n姓名：${name} (${gen})\n八字：${cur.p}\n主星：${cur.s}\n能量：${cur.e}\n--------------------\n日期：${document.getElementById('date').value}`;
+            
+            const h = JSON.parse(localStorage.getItem('bazi_v9') || '[]');
             h.unshift({ id: Date.now(), text, name, style: styleClass });
-            localStorage.setItem('bazi_v8', JSON.stringify(h));
+            localStorage.setItem('bazi_v9', JSON.stringify(h));
             render();
+            alert("已成功儲存到清單！");
         }
 
         function render() {
-            const h = JSON.parse(localStorage.getItem('bazi_v8') || '[]');
+            const h = JSON.parse(localStorage.getItem('bazi_v9') || '[]');
             document.getElementById('historyList').innerHTML = h.map(i => `
-                <div class="${i.style || 'bg-white'} p-4 rounded-2xl shadow-sm border mb-3">
-                    <div class="flex justify-between text-xs font-bold mb-2"><span>${i.name}</span><button onclick="del(${i.id})" class="text-slate-400">刪除</button></div>
-                    <pre class="text-[11px] font-mono bg-white/50 p-2 rounded border border-black/5 overflow-x-auto">${i.text}</pre>
-                    <button onclick="navigator.clipboard.writeText(\`${i.text}\`);alert('已複製')" class="w-full mt-2 py-2 bg-white/80 text-slate-700 rounded-lg text-xs font-bold shadow-sm">複製文字</button>
-                </div>
-            `).join('');
-        }
-        function del(id) { if(confirm('刪除？')){ let h = JSON.parse(localStorage.getItem('bazi_v8') || '[]'); localStorage.setItem('bazi_v8', JSON.stringify(h.filter(i => i.id !== id))); render(); } }
-        window.onload = render;
-    </script>
-</body>
-</html>
+                <div class="${i.style || 'bg-white'} p-4 rounded-2xl shadow-sm border mb-3 transition-all">
+                    <div class="flex justify-between text-xs font-bold mb-2">
+                        <span class="text-slate-700">${i.name} 的收藏</span>
+                        <button onclick="del(${i.id})" class="text-slate-400 hover:text-red-500">刪除</button>
+                    </div>
+                    <pre class="text-[11px] font-mono bg-white/60 p-3 rounded-lg border border-black/5 overflow-x-auto leading-relaxed text-slate-600">${i.text}</pre>
+                    <button onclick="copyToClip(\`${i.text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, this)" class="w-full mt-3 py-3 bg-white/90 text-
