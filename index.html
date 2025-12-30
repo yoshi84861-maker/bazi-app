@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業八字紀錄-全功能版</title>
+    <title>專業八字紀錄-穩定加強版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
+    
+    <script src="https://unpkg.com/lunar-javascript/lunar.js"></script>
+    <script>
+        // 如果第一個來源失敗，自動嘗試第二個
+        if (typeof Solar === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"><\/script>');
+        }
+    </script>
+    
     <style>
         .bg-wood { background-color: #f0fdf4; border-color: #bbf7d0; } 
         .bg-fire { background-color: #fef2f2; border-color: #fecaca; } 
@@ -20,7 +28,10 @@
         <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-200">
             <header class="text-center mb-6 border-b pb-4">
                 <h1 class="text-2xl font-black text-indigo-600">八字命例收藏</h1>
-                <div id="status" class="text-[10px] text-amber-500 mt-1 font-bold">● 系統載入中...</div>
+                <div id="status" class="flex items-center justify-center gap-2 text-[10px] text-amber-500 mt-1 font-bold">
+                    <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="statusText">系統初始化中...</span>
+                </div>
             </header>
             
             <div class="space-y-4">
@@ -42,104 +53,8 @@
                 </div>
 
                 <div id="elementArea" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="text-xs font-bold text-slate-500 mb-3">五行能量佔比 (天干地支)</h3>
+                    <h3 class="text-xs font-bold text-slate-500 mb-3 text-center">五行能量分析</h3>
                     <div id="elementBars" class="space-y-2"></div>
                 </div>
 
-                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition">💾 儲存完整紀錄</button>
-            </div>
-        </div>
-        <div id="historyList" class="space-y-3 pb-10"></div>
-    </div>
-
-    <script>
-        const ELEMENTS = { '木': 'bg-emerald-500', '火': 'bg-rose-500', '土': 'bg-amber-600', '金': 'bg-slate-400', '水': 'bg-blue-500' };
-        const FIVE_ELEMENTS = { '甲':'木','乙':'木','寅':'木','卯':'木','丙':'火','丁':'火','巳':'火','午':'火','戊':'土','己':'土','辰':'土','戌':'土','丑':'土','未':'土','庚':'金','辛':'金','申':'金','酉':'金','壬':'水','癸':'水','亥':'水','子':'水' };
-        const SHI_SHEN_MAP = { '比肩':['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'], '劫財':['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'], '食神':['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'], '傷官':['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'], '偏財':['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'], '正財':['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'], '七殺':['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'], '正官':['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸師'], '偏印':['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'], '正印':['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚'] };
-
-        let cur = null;
-
-        function checkInit() {
-            if (typeof Solar !== 'undefined') {
-                document.getElementById('status').innerText = "● 系統就緒";
-                document.getElementById('status').classList.replace('text-amber-500', 'text-emerald-500');
-                return true;
-            }
-            return false;
-        }
-        setInterval(checkInit, 1000);
-
-        function getSS(dG, tG) {
-            const pair = dG + tG;
-            for (let key in SHI_SHEN_MAP) if (SHI_SHEN_MAP[key].includes(pair)) return key;
-            return "--";
-        }
-
-        function runBazi() {
-            if (!checkInit()) return alert("系統載入中...");
-            const dV = document.getElementById('date').value;
-            if (!dV) return alert("請選生日");
-            const [y, m, d] = dV.split('-').map(Number);
-            const [hh, mm] = document.getElementById('time').value.split(':').map(Number);
-            
-            const s = Solar.fromYmdHms(y, m, d, hh, mm, 0);
-            const l = s.getLunar(), b = l.getEightChar();
-            const dG = b.getDayGan();
-
-            // 顯示盤面
-            document.getElementById('yP').innerText = b.getYear(); document.getElementById('mP').innerText = b.getMonth();
-            document.getElementById('dP').innerText = b.getDay(); document.getElementById('hP').innerText = b.getTime();
-            document.getElementById('yS').innerText = getSS(dG, b.getYearGan());
-            document.getElementById('mS').innerText = getSS(dG, b.getMonthGan());
-            document.getElementById('hS').innerText = getSS(dG, b.getTimeGan());
-
-            // 五行分析
-            const allChars = (b.getYear()+b.getMonth()+b.getDay()+b.getTime()).split('');
-            let counts = { '木':0, '火':0, '土':0, '金':0, '水':0 };
-            allChars.forEach(char => { if(FIVE_ELEMENTS[char]) counts[FIVE_ELEMENTS[char]]++; });
-            
-            const total = Object.values(counts).reduce((a, b) => a + b, 0);
-            let barHtml = '';
-            let energyText = '';
-            for(let key in counts) {
-                const percent = Math.round((counts[key]/total)*100);
-                barHtml += `<div class="flex items-center gap-2"><span class="text-[10px] w-4 font-bold">${key}</span><div class="flex-1 bg-white rounded-full h-2 overflow-hidden border"><div class="${ELEMENTS[key]} h-full" style="width:${percent}%"></div></div><span class="text-[10px] w-8 text-right">${percent}%</span></div>`;
-                energyText += `${key}${percent}% `;
-            }
-            document.getElementById('elementBars').innerHTML = barHtml;
-            document.getElementById('elementArea').classList.remove('hidden');
-
-            cur = { 
-                p: `${b.getTime()} ${b.getDay()} ${b.getMonth()} ${b.getYear()}`,
-                s: `${getSS(dG, b.getTimeGan())} | 日主 | ${getSS(dG, b.getMonthGan())} | ${getSS(dG, b.getYearGan())}`,
-                e: energyText.trim(),
-                dm: FIVE_ELEMENTS[dG]
-            };
-        }
-
-        function saveRecord() {
-            if (!cur) return alert("請先點擊排盤按鈕");
-            const name = document.getElementById('name').value || "未名";
-            const gen = document.getElementById('gender').value;
-            const styleClass = { '木':'bg-wood', '火':'bg-fire', '土':'bg-earth', '金':'bg-metal', '水':'bg-water' }[cur.dm];
-            
-            // 組合完整紀錄文字
-            const text = `【命例紀錄】\n姓名：${name} (${gen})\n八字：${cur.p}\n主星：${cur.s}\n能量：${cur.e}\n--------------------\n日期：${document.getElementById('date').value}`;
-            
-            const h = JSON.parse(localStorage.getItem('bazi_v9') || '[]');
-            h.unshift({ id: Date.now(), text, name, style: styleClass });
-            localStorage.setItem('bazi_v9', JSON.stringify(h));
-            render();
-            alert("已成功儲存到清單！");
-        }
-
-        function render() {
-            const h = JSON.parse(localStorage.getItem('bazi_v9') || '[]');
-            document.getElementById('historyList').innerHTML = h.map(i => `
-                <div class="${i.style || 'bg-white'} p-4 rounded-2xl shadow-sm border mb-3 transition-all">
-                    <div class="flex justify-between text-xs font-bold mb-2">
-                        <span class="text-slate-700">${i.name} 的收藏</span>
-                        <button onclick="del(${i.id})" class="text-slate-400 hover:text-red-500">刪除</button>
-                    </div>
-                    <pre class="text-[11px] font-mono bg-white/60 p-3 rounded-lg border border-black/5 overflow-x-auto leading-relaxed text-slate-600">${i.text}</pre>
-                    <button onclick="copyToClip(\`${i.text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, this)" class="w-full mt-3 py-3 bg-white/90 text-
+                <button onclick="saveRecord()" class="w-full py-3 bg
