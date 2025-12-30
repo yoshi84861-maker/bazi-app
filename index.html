@@ -3,39 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業八字-終極獨立版</title>
+    <title>八字紀錄-終極不卡死版</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://679796.github.io/Bazi-App/lunar.js"></script>
     <style>
         .bg-wood { background-color: #f0fdf4; border-color: #bbf7d0; } 
         .bg-fire { background-color: #fef2f2; border-color: #fecaca; } 
         .bg-earth { background-color: #fffbeb; border-color: #fef3c7; } 
         .bg-metal { background-color: #f8fafc; border-color: #e2e8f0; } 
         .bg-water { background-color: #eff6ff; border-color: #bfdbfe; } 
+        .bazi-box { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen py-6 px-4 font-sans text-slate-900">
+<body class="bg-slate-100 min-h-screen py-6 px-4 font-sans text-slate-900">
 
     <div class="max-w-xl mx-auto space-y-6">
         <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-200">
             <header class="text-center mb-6 border-b pb-4">
                 <h1 class="text-2xl font-black text-indigo-600">八字命例收藏</h1>
-                <div id="status" class="flex items-center justify-center gap-2 text-[10px] text-emerald-500 mt-1 font-bold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>終極本地版：已就緒</span>
-                </div>
+                <p class="text-[10px] text-emerald-600 font-bold mt-1">● 離線運算模組已內置</p>
             </header>
             
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">姓名</label><input type="text" id="name" placeholder="姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none"></div>
+                    <div class="col-span-1"><label class="text-xs font-bold text-slate-500">姓名</label><input type="text" id="name" placeholder="輸入姓名" class="w-full mt-1 border rounded-xl p-3 bg-slate-50 outline-none"></div>
                     <div class="col-span-1"><label class="text-xs font-bold text-slate-500">性別</label><select id="gender" class="w-full mt-1 border rounded-xl p-3 bg-slate-50"><option value="乾造">男 (乾)</option><option value="坤造">女 (坤)</option></select></div>
                     <div class="col-span-2"><label class="text-xs font-bold text-slate-500">出生時間 (陽曆)</label><div class="flex gap-2"><input type="date" id="date" class="w-full border rounded-xl p-3 bg-slate-50"><input type="time" id="time" value="12:00" class="w-full border rounded-xl p-3 bg-slate-50"></div></div>
                 </div>
 
-                <button onclick="runBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:shadow-none transition-all">立即排盤與能量分析</button>
+                <button onclick="calculateBazi()" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg active:scale-95 transition">立即排盤與分析</button>
 
-                <div class="bg-slate-900 rounded-2xl p-4">
+                <div class="bg-slate-900 rounded-2xl p-4 bazi-box">
                     <div class="grid grid-cols-4 gap-2 text-center text-white">
                         <div class="space-y-1"><span id="hS" class="text-[11px] font-bold text-amber-400 block h-4">--</span><div id="hP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg">--</div><span class="text-[10px] text-slate-500">時柱</span></div>
                         <div class="space-y-1"><span class="text-[11px] font-bold text-rose-400 block h-4">日主</span><div id="dP" class="bg-slate-800 py-3 rounded-lg font-bold text-lg border-2 border-rose-500/50">--</div><span class="text-[10px] text-slate-500">日柱</span></div>
@@ -44,25 +41,124 @@
                     </div>
                 </div>
 
-                <div id="elementArea" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div id="elementArea" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 animate-fade-in">
                     <div id="elementBars" class="space-y-2"></div>
                 </div>
 
-                <button onclick="saveRecord()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg">💾 儲存完整紀錄</button>
+                <button onclick="saveToHistory()" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg">💾 儲存紀錄</button>
             </div>
         </div>
         <div id="historyList" class="space-y-3 pb-10"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
+
     <script>
-        // 十神與五行對照 (內建確保不失效)
-        const ELEMENTS_MAP = { '木': 'bg-emerald-500', '火': 'bg-rose-500', '土': 'bg-amber-600', '金': 'bg-slate-400', '水': 'bg-blue-500' };
-        const CHARS_MAP = { '甲':'木','乙':'木','寅':'木','卯':'木','丙':'火','丁':'火','巳':'火','午':'火','戊':'土','己':'土','辰':'土','戌':'土','丑':'土','未':'土','庚':'金','辛':'金','申':'金','酉':'金','壬':'水','癸':'水','亥':'水','子':'水' };
-        const SHI_SHEN = { '比肩':['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'], '劫財':['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'], '食神':['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'], '傷官':['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'], '偏財':['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'], '正財':['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'], '七殺':['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'], '正官':['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸戊'], '偏印':['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'], '正印':['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚'] };
+        const FIVE_ELEMENTS = { '甲':'木','乙':'木','寅':'木','卯':'木','丙':'火','丁':'火','巳':'火','午':'火','戊':'土','己':'土','辰':'土','戌':'土','丑':'土','未':'土','庚':'金','辛':'金','申':'金','酉':'金','壬':'水','癸':'水','亥':'水','子':'水' };
+        const SHI_SHEN_RELATION = { '比肩':['甲甲','乙乙','丙丙','丁丁','戊戊','己己','庚庚','辛辛','壬壬','癸癸'], '劫財':['甲乙','乙甲','丙丁','丁丙','戊己','己戊','庚辛','辛庚','壬癸','癸壬'], '食神':['甲丙','乙丁','丙戊','丁己','戊庚','己辛','庚壬','辛癸','壬甲','癸乙'], '傷官':['甲丁','乙丙','丙己','丁戊','戊辛','己庚','庚癸','辛壬','壬乙','癸甲'], '偏財':['甲戊','乙己','丙庚','丁辛','戊壬','己癸','庚甲','辛乙','壬丙','癸丁'], '正財':['甲己','乙戊','丙辛','丁庚','戊癸','己壬','庚乙','辛甲','壬丁','癸丙'], '七殺':['甲庚','乙辛','丙壬','丁癸','戊甲','己乙','庚丙','辛丁','壬戊','癸己'], '正官':['甲辛','乙庚','丙癸','丁壬','戊乙','己甲','庚丁','辛丙','壬己','癸戊'], '偏印':['甲壬','乙癸','丙甲','丁乙','戊丙','己丁','庚戊','辛己','壬庚','癸辛'], '正印':['甲癸','乙壬','丙乙','丁甲','戊丁','己丙','庚己','辛庚','壬辛','癸庚'] };
 
-        let cur = null;
+        let currentResult = null;
 
-        function runBazi() {
+        function getShiShen(dayGan, targetGan) {
+            const pair = dayGan + targetGan;
+            for (let key in SHI_SHEN_RELATION) {
+                if (SHI_SHEN_RELATION[key].includes(pair)) return key;
+            }
+            return "--";
+        }
+
+        function calculateBazi() {
+            if (typeof Solar === 'undefined') {
+                alert("計算組件載入中，請稍候 3 秒後再試。如果持續失敗，請確認網路連線。");
+                return;
+            }
+
+            const dateInput = document.getElementById('date').value;
+            const timeInput = document.getElementById('time').value;
+            if (!dateInput) return alert("請選擇出生日期");
+
             try {
-                const dV = document.getElementById('date').value;
-                if (!dV
+                const [y, m, d] = dateInput.split('-').map(Number);
+                const [hh, mm] = timeInput.split(':').map(Number);
+                const solar = Solar.fromYmdHms(y, m, d, hh, mm, 0);
+                const eightChar = solar.getLunar().getEightChar();
+                
+                const dG = eightChar.getDayGan();
+                const pillars = {
+                    yP: eightChar.getYear(),
+                    mP: eightChar.getMonth(),
+                    dP: eightChar.getDay(),
+                    hP: eightChar.getTime(),
+                    yS: getShiShen(dG, eightChar.getYearGan()),
+                    mS: getShiShen(dG, eightChar.getMonthGan()),
+                    hS: getShiShen(dG, eightChar.getTimeGan())
+                };
+
+                // 更新介面
+                document.getElementById('yP').innerText = pillars.yP;
+                document.getElementById('mP').innerText = pillars.mP;
+                document.getElementById('dP').innerText = pillars.dP;
+                document.getElementById('hP').innerText = pillars.hP;
+                document.getElementById('yS').innerText = pillars.yS;
+                document.getElementById('mS').innerText = pillars.mS;
+                document.getElementById('hS').innerText = pillars.hS;
+
+                // 五行佔比
+                const allChars = (pillars.yP + pillars.mP + pillars.dP + pillars.hP).split('');
+                let counts = { '木':0, '火':0, '土':0, '金':0, '水':0 };
+                allChars.forEach(c => { if(FIVE_ELEMENTS[c]) counts[FIVE_ELEMENTS[c]]++; });
+                
+                let barHtml = '', energyText = '';
+                const colors = { '木': 'bg-emerald-500', '火': 'bg-rose-500', '土': 'bg-amber-600', '金': 'bg-slate-400', '水': 'bg-blue-500' };
+                for(let k in counts) {
+                    const pct = Math.round((counts[k]/8)*100);
+                    barHtml += `<div class="flex items-center gap-2 text-[10px]"><span class="w-4 font-bold">${k}</span><div class="flex-1 bg-white h-1.5 rounded-full overflow-hidden border"><div class="${colors[k]} h-full" style="width:${pct}%"></div></div><span>${pct}%</span></div>`;
+                    energyText += `${k}${pct}% `;
+                }
+                document.getElementById('elementBars').innerHTML = barHtml;
+                document.getElementById('elementArea').classList.remove('hidden');
+
+                currentResult = {
+                    pillars: `${pillars.hP} ${pillars.dP} ${pillars.mP} ${pillars.yP}`,
+                    shishen: `${pillars.hS} | 日主 | ${pillars.mS} | ${pillars.yS}`,
+                    energy: energyText,
+                    dayElement: FIVE_ELEMENTS[dG]
+                };
+            } catch (err) {
+                alert("計算發生錯誤，請重新整理頁面。");
+            }
+        }
+
+        function saveToHistory() {
+            if (!currentResult) return alert("請先進行排盤");
+            const name = document.getElementById('name').value || "未名";
+            const gender = document.getElementById('gender').value;
+            const date = document.getElementById('date').value;
+            const style = { '木':'bg-wood', '火':'bg-fire', '土':'bg-earth', '金':'bg-metal', '水':'bg-water' }[currentResult.dayElement];
+            
+            const text = `【命例紀錄】\n姓名：${name} (${gender})\n八字：${currentResult.pillars}\n主星：${currentResult.shishen}\n能量：${currentResult.energy}\n--------------------\n日期：${date}`;
+            
+            const history = JSON.parse(localStorage.getItem('bazi_v12') || '[]');
+            history.unshift({ id: Date.now(), text, name, style });
+            localStorage.setItem('bazi_v12', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('bazi_v12') || '[]');
+            document.getElementById('historyList').innerHTML = history.map(item => `
+                <div class="${item.style} p-4 rounded-2xl border mb-3 shadow-sm">
+                    <div class="flex justify-between text-xs font-bold mb-2"><span>${item.name}</span><button onclick="deleteItem(${item.id})" class="text-slate-400">刪除</button></div>
+                    <pre class="text-[11px] font-mono bg-white/70 p-3 rounded-xl overflow-x-auto text-slate-600">${item.text}</pre>
+                    <button onclick="copyText(\`${item.text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="w-full mt-2 py-3 bg-white/90 text-indigo-600 rounded-xl text-xs font-black">一鍵複製</button>
+                </div>
+            `).join('');
+        }
+
+        function copyText(t) { navigator.clipboard.writeText(t); alert("已複製到剪貼簿"); }
+        function deleteItem(id) { if(confirm('確定刪除？')) { let h = JSON.parse(localStorage.getItem('bazi_v12') || '[]'); localStorage.setItem('bazi_v12', JSON.stringify(h.filter(i => i.id !== id))); renderHistory(); } }
+        
+        window.onload = renderHistory;
+    </script>
+</body>
+</html>
